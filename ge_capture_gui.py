@@ -9,6 +9,8 @@ from time import sleep
 from pathlib import Path
 from multiprocessing import Process, Pipe
 from threading import Thread
+from datetime import datetime
+import json
 
 import kivy
 kivy.require('2.0.0')
@@ -56,6 +58,8 @@ class MainScreen(Screen):
         ip = self.app.config.get('osc', 'ip')
         port = int(self.app.config.get('osc', 'port'))
         self.osc_client = OSCClient(ip, port)
+        self.datas = []  # A enregister dans un json
+        self.save_in_json = 0
 
         Clock.schedule_once(self.set_run_on, 1.0)
 
@@ -86,6 +90,8 @@ class MainScreen(Screen):
                         # Relais des depth
                         if data1[0] == 'depth':
                             self.osc_client.send_message(b'/depth', [data1[1]])
+                            if self.save_in_json:
+                                self.datas.append(('/depth', [data1[1]]))
 
                         # Relais des zoom
                         if data1[0] == 'zoom':
@@ -104,9 +110,12 @@ class MainScreen(Screen):
                         data3 = None
 
                     if data3 is not None:
+
                         # Actions ['action', k]
                         if data3[0] == 'action':
                             self.osc_client.send_message(b'/action', [data3[1]])
+                            if self.save_in_json:
+                                self.datas.append(('/action', [data3[1]]))
 
                         if data3[0] == 'quit':
                             print("Quit reçu dans Kivy de Movenet")
@@ -152,7 +161,7 @@ class Reglage(Screen):
     brightness = NumericProperty(0)
     contrast = NumericProperty(0)
 
-    brightness_contrast_on = NumericProperty(0)
+    brightness_contrast = NumericProperty(0)
     threshold_p = NumericProperty(0.8)
 
     profondeur_mini = NumericProperty(1500)
@@ -160,6 +169,10 @@ class Reglage(Screen):
 
     largeur_maxi = NumericProperty(500)
     threshold_m = NumericProperty(0.8)
+
+    pile_size = NumericProperty(12)
+    lissage = NumericProperty(11)
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -169,7 +182,7 @@ class Reglage(Screen):
         self.brightness = float(self.app.config.get('pose', 'brightness'))
         self.contrast = float(self.app.config.get('pose', 'contrast'))
 
-        self.brightness_contrast_on = int(self.app.config.get('pose', 'brightness_contrast_on'))
+        self.brightness_contrast = int(self.app.config.get('pose', 'brightness_contrast'))
         self.threshold_p = float(self.app.config.get('pose', 'threshold'))
 
         self.profondeur_mini = int(self.app.config.get('pose', 'profondeur_mini'))
@@ -177,6 +190,9 @@ class Reglage(Screen):
 
         self.largeur_maxi = int(self.app.config.get('pose', 'largeur_maxi'))
         self.threshold_m = float(self.app.config.get('move', 'threshold'))
+
+        self.pile_size = int(self.app.config.get('pose', 'pile_size'))
+        self.lissage = int(self.app.config.get('pose', 'lissage'))
 
         Clock.schedule_once(self.set_switch, 0.5)
 
@@ -186,8 +202,8 @@ class Reglage(Screen):
         le switch est setter à 1 si 1 dans la config
         """
 
-        if self.brightness_contrast_on == 1:
-            self.ids.brightness_contrast_on.active = 1
+        if self.brightness_contrast == 1:
+            self.ids.brightness_contrast.active = 1
 
     def do_slider(self, iD, instance, value):
 
@@ -280,20 +296,39 @@ class Reglage(Screen):
             if scr.p1_conn:
                 scr.p1_conn.send(['lissage', self.lissage])
 
-    def on_switch_brightness_contrast_on(self, instance, value):
+    def on_switch_brightness_contrast(self, instance, value):
         scr = self.app.screen_manager.get_screen('Main')
         if value:
             value = 1
         else:
             value = 0
-        self.brightness_contrast_on = value
+        self.brightness_contrast = value
         if scr.p1_conn:
-            scr.p1_conn.send(['brightness_contrast_on', self.brightness_contrast_on])
-        self.app.config.set('pose', 'brightness_contrast_on',
-                                        self.brightness_contrast_on)
+            scr.p1_conn.send(['brightness_contrast', self.brightness_contrast])
+        self.app.config.set('pose', 'brightness_contrast',
+                                        self.brightness_contrast)
         self.app.config.write()
-        print("brightness_contrast_on =", self.brightness_contrast_on)
+        print("brightness_contrast =", self.brightness_contrast)
 
+    def on_save_in_json(self, instance, value):
+        if value:
+            value = 1
+        else:
+            value = 0
+        scr = self.app.screen_manager.get_screen('Main')
+        scr.save_in_json = value
+        self.datas = []
+        print("save_in_json =", value)
+
+    def do_save(self):
+        scr = self.app.screen_manager.get_screen('Main')
+        dt_now = datetime.now()
+        dt = dt_now.strftime("%Y_%m_%d_%H_%M")
+        fichier = f"./records/json/cap_{dt}.json"
+        print(scr.datas)
+        with open(fichier, "w") as fd:
+            fd.write(json.dumps(scr.datas))
+        print(f"Enregistrement du json: cap_{dt}.json")
 
 # Variable globale qui définit les écrans
 # L'écran de configuration est toujours créé par défaut
@@ -333,12 +368,12 @@ class GE_CaptureApp(App):
         [pose]
         brightness = -0.14
         contrast = 0.06
-        brightness_contrast_on = 0
+        brightness_contrast = 0
         threshold = 0.71
         profondeur_mini = 830
         profondeur_maxi = 4900
         largeur_maxi = 500
-        brightness_contrast_on = 0
+        brightness_contrast = 0
 
         [move]
         threshold = 0.21
@@ -357,12 +392,11 @@ class GE_CaptureApp(App):
         config.setdefaults( 'pose',
                                         {   'brightness': 0,
                                             'contrast': 0,
-                                            'brightness_contrast_on': 0,
+                                            'brightness_contrast': 0,
                                             'threshold': 0.71,
                                             'profondeur_mini': 830,
                                             'profondeur_maxi': 4900,
                                             'largeur_maxi': 500,
-                                            'brightness_contrast_on': 0,
                                             'pile_size': 30,
                                             'lissage': 11})
 
@@ -390,7 +424,7 @@ class GE_CaptureApp(App):
                         {   "type": "string",
                             "title": "IP",
                             "desc": "IP où envoyer",
-                            "section": "osc", "key": "ip"}
+                            "section": "osc", "key": "ip"},
 
                         {   "type": "numeric",
                             "title": "Port",

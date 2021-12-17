@@ -83,18 +83,50 @@
 
         BoxLayout: # une boite pour slider et switch
             orientation: 'horizontal'
+            size_hint_y: 0.8
             BoxLayout: # une boite pour switch
-                size_hint_x: 0.3
+                orientation: 'vertical'
                 BoxLayout:
+                    size_hint_y: 0.5
                     orientation: 'vertical'
-                    BoxLayout: # brightness_contrast_on
+
+                    BoxLayout: # brightness_contrast
                         orientation: 'vertical'
-                        size_hint_y: 0.25
                         Label:
-                            text: 'Brightness Contrast On'
+                            text: 'Brightness\nContrast\nOn'
                         Switch:
-                            id: brightness_contrast_on
-                            on_active: root.on_switch_brightness_contrast_on(*args)
+                            id: brightness_contrast
+                            on_active: root.on_switch_brightness_contrast(*args)
+
+                    BoxLayout: # save in json
+                        orientation: 'vertical'
+
+                        Label:
+                            text: 'Enregistrement\ndans un json\nOn'
+                        Switch:
+                            id: save_in_json
+                            on_active: root.on_save_in_json(*args)
+                        BoxLayout:
+                            orientation: 'vertical'
+                            BoxLayout:
+                                size_hint_y: 0.3
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: 0.7
+                                BoxLayout:
+                                    size_hint_x: 0.2
+                                Button:
+                                    size_hint_x: 0.6
+                                    background_color: (0.7, 0.7, 0.7, 1)
+                                    text: 'Enregister'
+                                    color: (0, 1, 0, 1)
+                                    font_size: '14dp'
+                                    on_release: root.do_save()
+                                BoxLayout:
+                                    size_hint_x: 0.2
+
+                BoxLayout:
+                    size_hint_y: 0.5
 
             BoxLayout: # une boite pour slider
                 orientation: 'vertical'
@@ -213,6 +245,44 @@
                     value: root.largeur_maxi
                     value_position: root.largeur_maxi
                     on_value: root.do_slider('largeur_maxi', *args)
+
+                BoxLayout: # une boite texte et affichage pile size
+                    orientation: 'horizontal'
+                    Label:  # pile size
+                        text: 'Taille de la pile de profondeur'
+                        font_size: '18dp'
+                        color: (0.5, 0.5, 0, 1)
+                    Label:
+                        text: str(root.pile_size)
+                        font_size: '18dp'
+                        color: (0.5, 0.5, 0, 1)
+                Slider:  # pile size
+                    id: pile_size
+                    orientation: 'horizontal'
+                    range: 10, 100
+                    step: 1
+                    value: root.pile_size
+                    value_position: root.pile_size
+                    on_value: root.do_slider('pile_size', *args)
+
+                BoxLayout: # une boite texte et affichage lissage
+                    orientation: 'horizontal'
+                    Label:  # lissage
+                        text: 'Coefficient de lissage'
+                        font_size: '18dp'
+                        color: (0.5, 0.5, 0, 1)
+                    Label:
+                        text: str(root.lissage)
+                        font_size: '18dp'
+                        color: (0.5, 0.5, 0, 1)
+                Slider:  # lissage
+                    id: lissage
+                    orientation: 'horizontal'
+                    range: 1, 100
+                    step: 1
+                    value: root.lissage
+                    value_position: root.lissage
+                    on_value: root.do_slider('lissage', *args)
 
                 BoxLayout: # une boite texte et affichage threshold movenet
                     orientation: 'horizontal'
