@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon=/media/data/3D/projets/ge_capture/ge_capture.svg
+Icon[fr_FR]=terminator
+Name[fr_FR]=ge-capture
+Exec=sh /media/data/3D/projets/ge_capture/run_ge_capture_gui.sh
+Name=ge_capture
