@@ -62,7 +62,7 @@ class GesturesDetection(Movenet):
                         print('threshold reçu dans movenet:', data[1])
                         self.threshold_m = data[1]
 
-            sleep(0.01)
+            sleep(0.001)
 
     def run(self):
         while self.move_loop:
@@ -110,16 +110,19 @@ class GesturesDetection(Movenet):
                 self.draw_keypoints_edges()
                 self.get_all_angles()
                 # # self.draw_angles()
+                self.draw_text()
                 actions = self.detect_actions()
                 self.send_actions(actions)
 
     def send_actions(self, actions):
-        """actions = {0: 1, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0,
-        10: 1, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
+        """actions = {0: 1, 1: 0, 2: 0, 3: 0, .... 15: 0}
         """
+        msg = []
         for k, v in actions.items():
-            if k:
-                self.move_conn.send(['action', k])
+            if v:
+                msg.append(k)
+        if msg:
+            self.move_conn.send(['action', msg])
 
     def draw_keypoints_edges(self):
         """
@@ -164,6 +167,22 @@ class GesturesDetection(Movenet):
                 else:
                     alpha = 180 - int((180/np.pi) * np.arctan(tg_alpha))
         return alpha
+
+    def draw_text(self):
+        """Affichage de la moyenne des profondeurs et x du personnage vert"""
+        d = {   "Confiance": self.threshold_m}
+
+        i = 0
+        for key, val in d.items():
+            text = key + " : " + str(val)
+            cv2.putText(self.zoom,  # image
+                        text,
+                        (30, 50*i+50),  # position
+                        cv2.FONT_HERSHEY_SIMPLEX,  # police
+                        0.6,  # taille police
+                        (0, 255, 0),  # couleur
+                        2)  # épaisseur
+            i += 1
 
     def get_all_angles(self):
         """angles = {'tibia droit': 128}

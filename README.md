@@ -61,6 +61,17 @@ Copier coller le lanceur ge_capture.desktop sur le Bureau
 
 Il faut le modifier avec Propriétés: adapter le chemin à votre cas.
 
+### Envoi d'un enregistrement en OSC sans capture
+#### Installer oscpy
+``` bash
+sudo apt install python3-pip
+python3 -m pip install --upgrade pip
+python3 - m pip install oscpy
+```
+Dans le dossier /records
+``` bash
+python3 send_json_over_osc.py
+```
 
 ### LICENSE
 

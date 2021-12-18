@@ -469,7 +469,7 @@ class PosenetRealsense(MyRealSense, MyPosenet, PosenetRealsenseViewer):
         """Affichage de la moyenne des profondeurs et x du personnage vert"""
         d = {   "Profondeur": self.depth,
                 "Largeur": self.x,
-                "Threshold": self.threshold_p,
+                "Confiance": self.threshold_p,
                 "Brightness": self.brightness,
                 "Contrast": self.contrast,
                 "Profondeur mini": self.profondeur_mini,
@@ -481,7 +481,7 @@ class PosenetRealsense(MyRealSense, MyPosenet, PosenetRealsenseViewer):
             text = key + " : " + str(val)
             cv2.putText(self.img,  # image
                         text,
-                        (30, 80*i+80),  # position
+                        (30, 50*i+50),  # position
                         cv2.FONT_HERSHEY_SIMPLEX,  # police
                         1,  # taille police
                         (0, 255, 0),  # couleur

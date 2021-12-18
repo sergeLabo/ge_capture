@@ -5,7 +5,7 @@ Interface graphique pour GE Capture
 
 
 import os
-from time import sleep
+from time import time, sleep
 from pathlib import Path
 from multiprocessing import Process, Pipe
 from threading import Thread
@@ -76,7 +76,7 @@ class MainScreen(Screen):
 
     def kivy_receive(self):
         while self.kivy_receive_loop:
-            sleep(0.0001)
+            sleep(0.001)
 
             # De posenet realsense
             if self.p1_conn is not None:
@@ -91,7 +91,7 @@ class MainScreen(Screen):
                         if data1[0] == 'depth':
                             self.osc_client.send_message(b'/depth', [data1[1]])
                             if self.save_in_json:
-                                self.datas.append(('/depth', [data1[1]]))
+                                self.datas.append((time(), '/depth', [data1[1]]))
 
                         # Relais des zoom
                         if data1[0] == 'zoom':
@@ -113,9 +113,9 @@ class MainScreen(Screen):
 
                         # Actions ['action', k]
                         if data3[0] == 'action':
-                            self.osc_client.send_message(b'/action', [data3[1]])
+                            self.osc_client.send_message(b'/action', data3[1])
                             if self.save_in_json:
-                                self.datas.append(('/action', [data3[1]]))
+                                self.datas.append((time(), '/action', data3[1]))
 
                         if data3[0] == 'quit':
                             print("Quit reçu dans Kivy de Movenet")
@@ -325,10 +325,11 @@ class Reglage(Screen):
         dt_now = datetime.now()
         dt = dt_now.strftime("%Y_%m_%d_%H_%M")
         fichier = f"./records/json/cap_{dt}.json"
-        print(scr.datas)
+        # # print(scr.datas)
         with open(fichier, "w") as fd:
             fd.write(json.dumps(scr.datas))
         print(f"Enregistrement du json: cap_{dt}.json")
+        scr.datas = []
 
 # Variable globale qui définit les écrans
 # L'écran de configuration est toujours créé par défaut
