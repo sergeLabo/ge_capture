@@ -447,14 +447,14 @@ class GE_CaptureApp(App):
 
         scr.p1_conn.send(['quit', 1])
         scr.p3_conn.send(['quit', 1])
-        sleep(2)
+        sleep(1)
 
         print("scr.kivy_receive_loop = 0")
         scr.kivy_receive_loop = 0
 
         scr.p1.terminate()
         scr.p3.terminate()
-        sleep(3)
+        sleep(1)
         print("Tous les process sont terminés")
 
         # Kivy
