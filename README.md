@@ -40,7 +40,7 @@ cd /le/dossier/de/ge_capture/
 python3 -m venv --system-site-packages mon_env
 # Activation
 source mon_env/bin/activate
-# Installation des packages, numpy, opencv-python, pyrealsense2, kivy, tensorflow ...
+# Installation des packages, numpy, opencv-python, pyrealsense2, kivy, intel-tensorflow ...
 python3 -m pip install -r requirements_with_version.txt
 ```
 
