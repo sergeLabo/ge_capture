@@ -8,8 +8,9 @@ class Movenet:
     """La reconnaissance de squelette"""
 
     def __init__(self, current_dir):
-        # Model performant, simple pose mais lourd
-        # CUDA est utile !
+        """Model performant, simple pose mais lourd
+        TF Lite --> pas de CUDA
+        """
         model_path = current_dir + "/lite-model_movenet_singlepose_thunder_3.tflite"
         print("movenet model path:", model_path)
         self.interpreter = tf.lite.Interpreter(model_path)
