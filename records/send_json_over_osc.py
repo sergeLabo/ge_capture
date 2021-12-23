@@ -23,4 +23,5 @@ for i, data in enumerate(datas):
     tag = str(data[1]).encode('utf-8')
     osc_client.send_message(tag, data[2])
     if i > 0:
+        # j'attends entre 2 time enregistré
         sleep(data[0] - datas[i-1][0])
