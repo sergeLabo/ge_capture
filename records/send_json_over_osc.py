@@ -28,3 +28,5 @@ while 1:
         if i > 0:
             # j'attends entre 2 time enregistré
             sleep(data[0] - datas[i-1][0])
+
+# Pour un pushde plus
